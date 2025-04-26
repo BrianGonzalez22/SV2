@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import AxiosInstance from '../Axios'; // Ajusta la ruta de AxiosInstance
+import AxiosInstance from '../axios'; // Ajusta la ruta de AxiosInstance
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
 const COLORS = ['#00C49F','#FFBB28','#0088FE'];
