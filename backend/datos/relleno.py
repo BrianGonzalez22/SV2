@@ -1,6 +1,7 @@
 import random
 from datetime import datetime, timedelta, time
 from datos.models import Registros, Usuarios, Vehiculos
+import holidays
 
 def generar_hora_aleatoria(hora_inicio, hora_fin):
     """Genera una hora aleatoria dentro del rango especificado."""
@@ -9,7 +10,7 @@ def generar_hora_aleatoria(hora_inicio, hora_fin):
     delta = fin - inicio
     return inicio + timedelta(seconds=random.randint(0, int(delta.total_seconds())))
 
-def insertar_registros(fecha_inicio='2025-01-01'):
+def insertar_registros(fecha_inicio='2023-01-01'):
     # Convertir la fecha de inicio y definir la fecha actual
     fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
     fecha_actual = datetime.now()
@@ -24,12 +25,22 @@ def insertar_registros(fecha_inicio='2025-01-01'):
 
     # Iterar desde la fecha de inicio hasta la fecha actual
     dias = (fecha_actual - fecha_inicio).days
+    festivos_mx = holidays.Mexico(years=[2023,2024,2025])
     for dia in range(dias + 1):
         fecha_base = fecha_inicio + timedelta(days=dia)
+
+        if fecha_base.weekday() == 6:
+            continue
+
         registros_a_crear = []
 
-        # Seleccionar usuarios únicos para las entradas (máximo 250 por día)
-        usuarios_para_entrada = random.sample(usuarios, min(len(usuarios), 250))
+        # Detectar si el día actual es festivo
+        es_festivo = fecha_base.date() in festivos_mx
+
+        # Si es festivo, reducir las entradas simuladas
+        limite_usuarios = 30 if es_festivo else 250
+
+        usuarios_para_entrada = random.sample(usuarios, min(len(usuarios), limite_usuarios))
 
         # Crear entradas
         entradas = {}

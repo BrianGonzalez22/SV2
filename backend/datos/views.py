@@ -15,9 +15,10 @@ from collections import defaultdict
 import pandas as pd
 from prophet import Prophet
 from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
 from rest_framework.views import APIView
 from django.db.models.functions import TruncDate
+import holidays
+from django.core.cache  import cache
 
 class RegistroViewset(viewsets.ModelViewSet):  
     permission_classes = [permissions.AllowAny]
@@ -209,6 +210,20 @@ def calcular_promedio_por_hora():
 #Vista para la predicción de ocupacion basado en entradas
 
 def predecir_ocupacion_prophet():
+
+    # mx_holidays = holidays.Mexico(years=[2024, 2025, 2026])
+    # fechas_festivas = pd.DataFrame({
+    # 'holiday': 'festivo',
+    # 'ds': pd.to_datetime([fecha for fecha in mx_holidays]),
+    # 'lower_window': 0,
+    # 'upper_window': 0
+    # })
+
+    cached_data = cache.get("prediccion_ocupacion")
+
+    if cached_data:
+        return cached_data
+
     ahora = datetime.now()
     inicio_dia = ahora.replace(hour=5, minute=0, second=0, microsecond=0)
     fin_dia = ahora.replace(hour=23, minute=0, second=0, microsecond=0)
@@ -248,17 +263,24 @@ def predecir_ocupacion_prophet():
 
     respuesta = [
         {
-            'hora': row['ds'].strftime('%Y-%m-%d %H:%M:%S'),
+            'hora': row['ds'].strftime('%Y-%m-%dT%H:%M:%S'),
             'prediccion': max(0, int(row['yhat']))  # Evitar valores negativos
         }
         for _, row in resultado.iterrows()
     ]
 
+    cache.set("prediccion_ocupacion", respuesta , timeout=1800)
     return respuesta
 
 #Vista para predecir la capacidad general del estacionamiento cada hora
 
 def predecir_dispo():
+
+    cached_data = cache.get("prediccion_dispo")
+
+    if cached_data:
+        return cached_data
+    
     estancias = emparejar_entradas_salidas()
     # Paso 3: Calcular lugares disponibles
     disponibilidad = calcular_lugares_disponibles(estancias)
@@ -274,6 +296,7 @@ def predecir_dispo():
 
     predicciones_json = predicciones_a_json(predicciones)
 
+    cache.set("prediccion_dispo", predicciones_json, timeout = 1800)
     # Devolver como respuesta JSON
     return predicciones_json
 #-------------------------------------------------Vistas del modelo prophet------------------------------------------------#
@@ -318,6 +341,15 @@ def emparejar_entradas_salidas():
             else:
                 usuarios_salidas[registro.usuario_id].append(registro)
     
+        # Añadir entradas sin salida hasta ahora
+    for usuario_id, entradas in usuarios_entradas.items():
+        for entrada in entradas:
+            estancias.append({
+                'usuario_id': usuario_id,
+                'entrada': entrada.fecha,
+                'salida': datetime.now()  # Asumimos que siguen dentro
+            })
+
     return estancias
 
 def calcular_lugares_disponibles(estancias):
@@ -381,13 +413,16 @@ def hacer_predicciones(modelo, periodos=24):
     predicciones = modelo.predict(futuro)
     return predicciones
 
-def predicciones_a_json(predicciones):
-
+def predicciones_a_json(predicciones, max_lugares=333):
     # Obtener la fecha actual sin horas, minutos y segundos
     fecha_actual = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
     # Filtrar solo las predicciones a partir de hoy
     predicciones_futuras = predicciones[predicciones['ds'] >= fecha_actual]
+
+    # Filtrar solo las predicciones hasta el final del día de hoy (hasta las 23:59:59)
+    fin_del_dia = fecha_actual.replace(hour=23, minute=59, second=59, microsecond=999999)
+    predicciones_futuras = predicciones_futuras[predicciones_futuras['ds'] <= fin_del_dia]
 
     # Seleccionar y renombrar las columnas
     resultados = predicciones_futuras[['ds', 'yhat']].rename(columns={
@@ -395,9 +430,13 @@ def predicciones_a_json(predicciones):
         'yhat': 'ocupacion_esperada'
     })
 
+    # Limitar el valor de ocupación a 333
+    resultados['ocupacion_esperada'] = resultados['ocupacion_esperada'].apply(lambda x: min(max_lugares, max(0, int(x))))
+
     # Convertir a JSON
     resultados_json = resultados.to_dict(orient='records')
     return resultados_json
+
 
 #-------------------------------------------PREPARACION PARA CALCULAR DISPONIBILIDAD------------------------------------#
 
