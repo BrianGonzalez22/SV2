@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import {Routes, Route, Navigate, useNavigate} from 'react-router-dom'
-import Pagina1 from './components/pagina1'
-import Pagina2 from './components/pagina2'
-import Pagina3 from './components/pagina3'
+import PaginaGraficos from './components/PaginaGraficos'
+import PaginaRegistros from './components/PaginaRegistros'
+import PaginaUsuarios from './components/PaginaUsuarios'
 import Navbar from './components/Navbar'
 import Login from './components/Login';
 import Register from './components/register'
@@ -34,9 +34,9 @@ function App() {
           <Navbar onLogout={handleLogout} />
           <div style={{ flexGrow: 1, padding: '70px' }}>
             <Routes>
-              <Route path="/" element={<Pagina1 />} />
-              <Route path="/pagina2" element={<Pagina2 />} />
-              <Route path="/pagina3" element={<Pagina3 />} />
+              <Route path="/" element={<PaginaGraficos />} />
+              <Route path="/PaginaRegistros" element={<PaginaRegistros />} />
+              <Route path="/PaginaUsuarios" element={<PaginaUsuarios />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>

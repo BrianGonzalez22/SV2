@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 
 const TablaDatos = ({ datos, columnas }) => {
   return (
-    <Box sx={{ height: 400, width: '100%', mt: 3 }}>
+    <Box sx={{ height: 600, width: '100%', mt: 3 ,overflowX: 'auto'}}>
       <DataGrid
         rows={datos}
         columns={columnas}

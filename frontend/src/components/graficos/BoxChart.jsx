@@ -6,7 +6,7 @@ export default function MyChartBox(props) {
   return (
     <>
         <Grid container spacing={2}
-            sx={{width:'100%', minHeight:'200px', boxShadow: 3, marginBottom: '20px'}}
+            sx={{width:'100%', minHeight:'200px', boxShadow: 3, marginBottom: '20px', marginTop:'30px'}}
         >
 
             <Grid

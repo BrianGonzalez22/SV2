@@ -47,15 +47,27 @@ export default function Navbar({ onLogout }) {
             </ListItemButton>
           </ListItem>
           <ListItem key="2" disablePadding>
-            <ListItemButton component={Link} to="/pagina2" selected={"/pagina2" === location.pathname}>
+            <ListItemButton component={Link} to="/PaginaRegistros" selected={"/PaginaRegistros" === location.pathname}>
               <ListItemIcon><EqualizerIcon /></ListItemIcon>
-              <ListItemText primary="Historial" />
+              <ListItemText primary="Historial de Registros" />
             </ListItemButton>
           </ListItem>
           <ListItem key="3" disablePadding>
-            <ListItemButton component={Link} to="/pagina3" selected={"/pagina3" === location.pathname}>
+            <ListItemButton component={Link} to="/PaginaUsuarios" selected={"/PaginaUsuarios" === location.pathname}>
               <ListItemIcon><EqualizerIcon /></ListItemIcon>
-              <ListItemText primary="Reportes" />
+              <ListItemText primary="Usuarios" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="3" disablePadding>
+            <ListItemButton component={Link} to="/PaginaUsuarios" selected={"/PaginaUsuarios" === location.pathname}>
+              <ListItemIcon><EqualizerIcon /></ListItemIcon>
+              <ListItemText primary="Vehiculos" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="3" disablePadding>
+            <ListItemButton component={Link} to="/PaginaUsuarios" selected={"/PaginaUsuarios" === location.pathname}>
+              <ListItemIcon><EqualizerIcon /></ListItemIcon>
+              <ListItemText primary="Incidencias" />
             </ListItemButton>
           </ListItem>
         </Box>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AxiosInstance from '../Axios'; // Ajusta la ruta según tu estructura
+import AxiosInstance from '../axios'; // Ajusta la ruta según tu estructura
 import { PieChart, Pie, Cell } from 'recharts';
 
 const RADIAN = Math.PI / 180;
@@ -88,7 +88,7 @@ const EstacionamientoChart = () => {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 5000);
+    const interval = setInterval(fetchData, 600000);
 
     return () => clearInterval(interval);
   }, []);

@@ -31,7 +31,7 @@ const PieChartComponent = () => {
      // Actualizar automáticamente cada 5 segundos
      const interval = setInterval(() => {
       fetchData();
-    }, 5000); // Cambia el tiempo según tu necesidad (5000 ms = 5 segundos)
+    }, 600000); // Cambia el tiempo según tu necesidad (5000 ms = 5 segundos)
 
     return () => clearInterval(interval); // Limpiar el intervalo al desmontar el componente
   

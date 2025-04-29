@@ -11,7 +11,7 @@ import MyChartBox2 from './graficos/BoxChart2';
 import HeatmapChart from './graficos/MapaCalorChart';
 import GraficoOcupacion from './graficos/PrediDispoChart';
 
-const Pagina1 = () => {
+const PaginaGraficos = () => {
 
     // Estados para almacenar los datos de los tres gráficos
     const [prophetData, setProphetData] = useState([]);
@@ -93,4 +93,4 @@ const Pagina1 = () => {
     )
 }
 
-export default Pagina1
+export default PaginaGraficos
