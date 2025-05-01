@@ -2,6 +2,7 @@ import os
 import django
 import random
 import string
+import uuid
 
 # Configurar el entorno de Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dashboard.settings')  # reemplaza 'tu_proyecto'
@@ -18,9 +19,9 @@ def generar_nombre():
     apellidos = ['García', 'Hernández', 'Martínez', 'López', 'Ramírez', 'Torres']
     return f"{random.choice(nombres)} {random.choice(apellidos)}"
 
-def generar_correo(nombre):
+def generar_correo_unico(nombre):
     dominios = ['gmail.com', 'outlook.com', 'universidad.edu']
-    user = nombre.lower().replace(' ', '.') + str(random.randint(1, 99))
+    user = nombre.lower().replace(' ', '.') + '.' + str(uuid.uuid4())[:8]
     return f"{user}@{random.choice(dominios)}"
 
 def generar_telefono():
@@ -37,7 +38,7 @@ usuarios_a_crear = 250
 # Crear usuarios
 for i in range(usuarios_a_crear):  # Cambia el número para crear más o menos usuarios
     nombre = generar_nombre()
-    correo = generar_correo(nombre)
+    correo = generar_correo_unico(nombre)
     telefono = generar_telefono()
     rol = random.choice(roles)
     matricula = str(matricula_inicial + i)

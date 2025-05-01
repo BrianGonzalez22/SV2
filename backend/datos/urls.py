@@ -20,6 +20,6 @@ urlpatterns = [
     path('obtener-datos/', obtener_datos, name='obtener_datos'),
     path('obtener-fechas-registros/', obtener_fechas_registros, name='obtener_fechas'),
     path('obtener-fechas-filtradas/', obtener_registros_filtrados, name='obtener_fechas_filtradas'),
-
+    path('api/buscar-usuarios/', buscar_usuarios),
 
 ]

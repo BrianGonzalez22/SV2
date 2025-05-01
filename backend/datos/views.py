@@ -19,6 +19,7 @@ from rest_framework.views import APIView
 from django.db.models.functions import TruncDate
 import holidays
 from django.core.cache  import cache
+from django.http import JsonResponse
 
 class RegistroViewset(viewsets.ModelViewSet):  
     permission_classes = [permissions.AllowAny]
@@ -475,14 +476,21 @@ def obtener_datos(request):
 
 @api_view(['GET'])
 def obtener_fechas_registros(request):
-    # Truncar las fechas a solo día (sin horas, minutos ni segundos)
-    fechas = Registros.objects.annotate(fecha_truncada=TruncDate('fecha')).values('fecha_truncada').distinct().order_by('fecha_truncada')
-    
-    # Extraemos solo el valor truncado de la fecha
-    fechas = [fecha['fecha_truncada'] for fecha in fechas]
-    
-    # Enviamos la lista de fechas truncadas
-    return Response(fechas)
+    anio = request.query_params.get('anio')
+    mes = request.query_params.get('mes')
+
+    if anio and mes:
+        registros = Registros.objects.filter(
+            fecha__year=anio,
+            fecha__month=mes
+        ).dates('fecha', 'day')  # Obtener solo fechas únicas por día
+
+        # Retornar solo el número de día
+        dias = [fecha.day for fecha in registros]
+        return Response(sorted(dias))
+    else:
+        return Response([])  # Retorna vacío si no se recibe año y mes
+
 
 @api_view(['GET'])
 def obtener_registros_filtrados(request):
@@ -505,3 +513,26 @@ def obtener_registros_filtrados(request):
     serializer = RegistrosSerializer(registros, many=True)
     return Response(serializer.data)
 
+def buscar_usuarios(request):
+    nombre = request.GET.get('nombre', '').strip()
+    matricula = request.GET.get('matricula', '').strip()
+
+    if not nombre:
+        return JsonResponse({'error': 'Nombre es requerido.'}, status=400)
+
+    usuarios = Usuarios.objects.filter(nombre__icontains=nombre)
+
+    if matricula:
+        usuarios = usuarios.filter(matricula__iexact=matricula)
+
+    data = [
+        {
+            'id': u.id,
+            'nombre': u.nombre,
+            'correo': u.correo,
+            'matricula': u.matricula,
+        }
+        for u in usuarios
+    ]
+
+    return JsonResponse(data, safe=False)  # data debe ser una lista
