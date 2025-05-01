@@ -9,6 +9,7 @@ class Usuarios(models.Model):
     correo = models.EmailField(unique=True)
     telefono = models.CharField(max_length=10)
     rol = models.CharField(max_length=20, null=True, blank=True)
+    matricula = models.CharField(max_length=9)
 
 class Vehiculos(models.Model):
     usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
