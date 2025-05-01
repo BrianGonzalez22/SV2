@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import AxiosInstance from '../Axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, CartesianGrid, ResponsiveContainer } from 'recharts';
 
 const HeatmapChart = ({ data }) => {
