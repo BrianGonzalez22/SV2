@@ -671,8 +671,10 @@ def generar_reporte(request):
     capacidad_maxima = 100  # Si esta varía en el tiempo, deberías ajustarlo
     ocupacion_promedio = (total_vehiculos / capacidad_maxima) * 100 if capacidad_maxima else 0
 
-    # 2. Calcular distribución por rol
-    roles = registros.values('rol').annotate(cantidad=Count('rol'))
+     # 2. Obtener los roles desde el modelo Usuario
+    roles = registros.annotate(
+        rol=F('usuario__rol')  # Aquí se hace la relación con el campo 'rol' del modelo Usuario
+    ).values('rol').annotate(cantidad=Count('rol'))
 
     # 3. Calcular tiempo promedio de permanencia
     try:

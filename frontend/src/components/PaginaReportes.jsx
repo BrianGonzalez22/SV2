@@ -7,7 +7,7 @@ const PaginaReportes = () => {
   const [reporte, setReporte] = useState(null);
 
   const obtenerReporte = () => {
-    AxiosInstance.get('/generar-reporte/', {
+    AxiosInstance.get('generar-reporte/', {
       params: { inicio, fin }
     })
       .then(response => {
