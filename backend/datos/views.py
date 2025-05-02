@@ -1,10 +1,8 @@
-from django.shortcuts import render
-from django.contrib.auth import authenticate
 from rest_framework import viewsets, permissions
 from .serializers import *
 from .models import Registros
 from rest_framework.response import Response
-from django.db.models import Count, When, Case, Value, CharField, F
+from django.db.models import Count, When, Case, Value, CharField, F, Avg
 from .models import *
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
@@ -16,10 +14,13 @@ import pandas as pd
 from prophet import Prophet
 from datetime import datetime, timedelta
 from rest_framework.views import APIView
-from django.db.models.functions import TruncDate
-import holidays
 from django.core.cache  import cache
 from django.http import JsonResponse
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
+
+
 
 class RegistroViewset(viewsets.ModelViewSet):  
     permission_classes = [permissions.AllowAny]
@@ -545,3 +546,168 @@ def obtener_auto(request, matricula):
         return Response(serializer.data)
     except Vehiculos.DoesNotExist:
         return Response({"error": "Auto no encontrado"}, status=404)
+    
+#----------------------------------------------------------REPORTES--------------------------------------------------#
+def obtener_estancias_en_rango(fecha_inicio, fecha_fin):
+    entradas = Registros.objects.filter(
+        movimiento='entrada',
+        fecha__gte=fecha_inicio,
+        fecha__lt=fecha_fin
+    )
+
+    usuarios_con_entrada_y_salida = []
+
+    for entrada in entradas:
+        salidas = Registros.objects.filter(
+            movimiento='salida',
+            usuario_id=entrada.usuario_id,
+            vehiculo_id=entrada.vehiculo_id,
+            fecha__gt=entrada.fecha,
+            fecha__lt=fecha_fin
+        ).order_by('fecha')
+
+        if salidas.exists():
+            salida = salidas.first()
+            usuarios_con_entrada_y_salida.append({
+                'usuario_id': entrada.usuario_id,
+                'vehiculo_id': entrada.vehiculo_id,
+                'entrada': entrada.fecha,
+                'salida': salida.fecha
+            })
+
+    return usuarios_con_entrada_y_salida
+
+def calcular_promedio_por_hora_en_rango(fecha_inicio, fecha_fin):
+    # Obtener la lista de usuarios con entrada y salida
+    usuarios_con_entrada_y_salida = obtener_estancias_en_rango(fecha_inicio, fecha_fin)
+
+    # Crear una lista de estancias con sus intervalos de 1 hora
+    estancias = []
+    for usuario in usuarios_con_entrada_y_salida:
+        entrada = usuario['entrada']
+        salida = usuario['salida']
+
+        # Calcular la duración de la estancia en minutos
+        tiempo_estancia = (salida - entrada).total_seconds() / 60  # Convertir a minutos
+
+        # Iterar por todos los intervalos de 1 hora entre la entrada y la salida
+        hora_actual = entrada
+        while hora_actual < salida:
+            # Calcular el intervalo de 1 hora en el que cae la entrada
+            hora_inicio_intervalo = hora_actual.hour
+            intervalo = f'{hora_inicio_intervalo}:00 - {hora_inicio_intervalo + 1}:00'
+
+            # Agregar la estancia con el intervalo, el tiempo de estancia y la hora de inicio
+            estancias.append({
+                'usuario_id': usuario['usuario_id'],
+                'intervalo': intervalo,
+                'tiempo_estancia': tiempo_estancia,
+                'hora_inicio': hora_inicio_intervalo  # Guardar la hora de inicio para ordenarlo luego
+            })
+
+            # Avanzar una hora
+            hora_actual += timedelta(hours=1)
+
+    # Agrupar las estancias por intervalo de 1 hora
+    agrupados_por_intervalo = defaultdict(list)
+    for estancia in estancias:
+        agrupados_por_intervalo[estancia['intervalo']].append(estancia)
+
+    # Calcular el promedio ponderado por intervalo de 1 hora
+    promedio_ponderado_por_intervalo = []
+    for intervalo, estancias_en_intervalo in agrupados_por_intervalo.items():
+        # Sumar todos los tiempos de ocupación y contar los usuarios
+        total_tiempos = sum(estancia['tiempo_estancia'] for estancia in estancias_en_intervalo)
+        total_usuarios = len(estancias_en_intervalo)
+        
+        # Calcular el promedio ponderado
+        promedio = total_tiempos / total_usuarios if total_usuarios > 0 else 0
+
+        # Obtener la hora de inicio (tomamos la hora de la primera estancia en ese intervalo)
+        hora_inicio = estancias_en_intervalo[0]['hora_inicio']
+        
+        # Agregar el resultado para ese intervalo
+        promedio_ponderado_por_intervalo.append({
+            'intervalo': intervalo,
+            'tiempo_estancia_promedio': promedio,
+            'hora_inicio': hora_inicio  # Incluimos la hora de inicio para ordenar luego
+        })
+
+    # Ordenar los intervalos por la hora de inicio del intervalo (numéricamente)
+    promedio_ponderado_por_intervalo.sort(key=lambda x: x['hora_inicio'])
+
+    return promedio_ponderado_por_intervalo
+
+
+@api_view(['GET'])
+def generar_reporte(request):
+    # Obtener parámetros de rango de fechas
+    fecha_inicio_str = request.query_params.get('inicio')
+    fecha_fin_str = request.query_params.get('fin')
+
+    try:
+        if fecha_inicio_str and fecha_fin_str:
+            fecha_inicio = datetime.fromisoformat(fecha_inicio_str)
+            fecha_fin = datetime.fromisoformat(fecha_fin_str)
+        else:
+            # Por defecto: hoy
+            hoy = datetime.now().date()
+            fecha_inicio = datetime.combine(hoy, datetime.min.time())
+            fecha_fin = fecha_inicio + timedelta(days=1)
+
+        # Validaciones
+        if fecha_fin <= fecha_inicio:
+            return Response({'error': 'La fecha de fin debe ser posterior a la de inicio'}, status=400)
+        if fecha_fin - fecha_inicio > timedelta(days=366):
+            return Response({'error': 'El rango no puede exceder un año'}, status=400)
+    except Exception as e:
+        return Response({'error': f'Fechas inválidas: {str(e)}'}, status=400)
+
+    # Filtrar los registros para el rango de fechas
+    registros = Registros.objects.filter(fecha__range=[fecha_inicio, fecha_fin])
+
+    # 1. Calcular ocupación promedio
+    total_vehiculos = registros.count()
+    capacidad_maxima = 100  # Si esta varía en el tiempo, deberías ajustarlo
+    ocupacion_promedio = (total_vehiculos / capacidad_maxima) * 100 if capacidad_maxima else 0
+
+    # 2. Calcular distribución por rol
+    roles = registros.values('rol').annotate(cantidad=Count('rol'))
+
+    # 3. Calcular tiempo promedio de permanencia
+    try:
+        datos_por_hora = calcular_promedio_por_hora_en_rango(fecha_inicio, fecha_fin)
+        promedios = [item['tiempo_estancia_promedio'] for item in datos_por_hora]
+        tiempo_promedio = sum(promedios) / len(promedios) if promedios else None
+    except Exception as e:
+        tiempo_promedio = None  # o manejar error como desees
+
+    # 4. Generar gráfico
+    roles_labels = [rol['rol'] for rol in roles]
+    roles_data = [rol['cantidad'] for rol in roles]
+
+    plt.figure(figsize=(6, 4))  # Para evitar solapamiento si hay muchos roles
+    plt.bar(roles_labels, roles_data)
+    plt.xlabel('Rol')
+    plt.ylabel('Cantidad de vehículos')
+    plt.title('Distribución por rol')
+
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    img_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+    plt.close()
+
+    # Preparar la respuesta
+    reporte_data = {
+        'ocupacion_promedio': ocupacion_promedio,
+        'roles': roles,
+        'tiempo_promedio': f"{tiempo_promedio:.2f} minutos" if tiempo_promedio else "No disponible",
+        'grafico': img_base64,
+        'fecha_inicio': fecha_inicio.isoformat(),
+        'fecha_fin': fecha_fin.isoformat()
+    }
+
+    return Response(reporte_data)
+
+#----------------------------------------------------------REPORTES--------------------------------------------------#
