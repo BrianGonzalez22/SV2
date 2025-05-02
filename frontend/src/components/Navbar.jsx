@@ -59,15 +59,21 @@ export default function Navbar({ onLogout }) {
             </ListItemButton>
           </ListItem>
           <ListItem key="4" disablePadding>
-            <ListItemButton component={Link} to="/PaginaUsuarios" selected={"/PaginaUsuarios" === location.pathname}>
+            <ListItemButton component={Link} to="/PaginaAutos" selected={"/PaginaAutos" === location.pathname}>
               <ListItemIcon><EqualizerIcon /></ListItemIcon>
               <ListItemText primary="Vehiculos" />
             </ListItemButton>
           </ListItem>
           <ListItem key="5" disablePadding>
-            <ListItemButton component={Link} to="/PaginaUsuarios" selected={"/PaginaUsuarios" === location.pathname}>
+            <ListItemButton component={Link} to="/PaginaIncidencias" selected={"/PaginaIncidencias" === location.pathname}>
               <ListItemIcon><EqualizerIcon /></ListItemIcon>
               <ListItemText primary="Incidencias" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="6" disablePadding>
+            <ListItemButton component={Link} to="/PaginaReportes" selected={"/PaginaReportes" === location.pathname}>
+              <ListItemIcon><EqualizerIcon /></ListItemIcon>
+              <ListItemText primary="Reportes" />
             </ListItemButton>
           </ListItem>
         </Box>

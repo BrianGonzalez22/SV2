@@ -67,3 +67,12 @@ class RegistroSerializer(serializers.ModelSerializer):
     # vehiculo = models.ForeignKey(Vehiculos, on_delete=models.CASCADE)
     # movimiento = models.CharField(max_length=30)
     # fecha = models.DateTimeField(auto_now_add=True)
+
+class AutoSerializer(serializers.ModelSerializer):
+    usuario = serializers.SlugRelatedField(
+        queryset=Usuarios.objects.all(),
+        slug_field='nombre'
+        )
+    class Meta:
+        model = Vehiculos
+        fields = ['placa', 'modelo', 'color', 'tipo', 'usuario']  # Agrega los campos que quieres enviar

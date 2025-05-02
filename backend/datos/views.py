@@ -536,3 +536,12 @@ def buscar_usuarios(request):
     ]
 
     return JsonResponse(data, safe=False)  # data debe ser una lista
+
+@api_view(['GET'])
+def obtener_auto(request, matricula):
+    try:
+        auto = Vehiculos.objects.get(placa=matricula)  # Busca el auto por matrícula
+        serializer = AutoSerializer(auto)  # Serializa los datos
+        return Response(serializer.data)
+    except Vehiculos.DoesNotExist:
+        return Response({"error": "Auto no encontrado"}, status=404)

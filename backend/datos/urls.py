@@ -21,5 +21,6 @@ urlpatterns = [
     path('obtener-fechas-registros/', obtener_fechas_registros, name='obtener_fechas'),
     path('obtener-fechas-filtradas/', obtener_registros_filtrados, name='obtener_fechas_filtradas'),
     path('api/buscar-usuarios/', buscar_usuarios),
+    path('autos/<str:matricula>/', views.obtener_auto, name='obtener_auto'),
 
 ]

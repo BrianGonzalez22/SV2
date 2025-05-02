@@ -40,7 +40,7 @@ const BusquedaUsuarios = () => {
         />
         <input
           type="text"
-          placeholder="Matrícula (opcional)"
+          placeholder="Numero de control (opcional)"
           value={matricula}
           onChange={(e) => setMatricula(e.target.value)}
         />
