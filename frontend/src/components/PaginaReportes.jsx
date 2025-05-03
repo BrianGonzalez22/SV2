@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AxiosInstance from './axios';
+import { jsPDF } from 'jspdf';
 
 const PaginaReportes = () => {
   const [inicio, setInicio] = useState('');
@@ -17,6 +18,41 @@ const PaginaReportes = () => {
         console.error('Error al generar el reporte:', error);
         setReporte(null);
       });
+  };
+
+  // Función para generar el PDF
+  const generarPDF = () => {
+    const doc = new jsPDF();
+    
+    // Agregar el contenido del reporte
+    doc.text('Reporte de Ocupación', 10, 10);
+    
+    // Fecha de inicio y fin
+    doc.text(`Fecha de inicio: ${new Date(reporte.fecha_inicio).toLocaleString()}`, 10, 20);
+    doc.text(`Fecha de fin: ${new Date(reporte.fecha_fin).toLocaleString()}`, 10, 30);
+
+    // Ocupación promedio
+    doc.text(`Ocupación Promedio: ${reporte.ocupacion_promedio?.toFixed(2)}%`, 10, 40);
+
+    // Tiempo promedio de permanencia
+    doc.text(`Tiempo Promedio de Permanencia: ${reporte.tiempo_promedio}`, 10, 50);
+
+    // Distribución por rol
+    let yPosition = 60;
+    doc.text('Distribución por Rol:', 10, yPosition);
+    yPosition += 10;
+
+    reporte.roles.forEach((rol, index) => {
+      doc.text(`${rol.rol}: ${rol.cantidad}`, 10, yPosition);
+      yPosition += 10;
+    });
+
+    // Agregar gráfico (base64)
+    const img = `data:image/png;base64,${reporte.grafico}`;
+    doc.addImage(img, 'PNG', 10, yPosition, 180, 100); // Puedes ajustar las coordenadas y el tamaño
+
+    // Guardar el PDF
+    doc.save('reporte.pdf');
   };
 
   return (
@@ -58,6 +94,10 @@ const PaginaReportes = () => {
             alt="Gráfico de distribución por rol"
             style={{ maxWidth: '100%', height: 'auto', marginTop: '20px' }}
           />
+
+          <button onClick={generarPDF} style={{ marginTop: '20px' }}>
+            Descargar PDF
+          </button>
         </div>
       )}
     </div>

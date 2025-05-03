@@ -23,6 +23,7 @@ urlpatterns = [
     path('api/buscar-usuarios/', buscar_usuarios),
     path('autos/<str:matricula>/', views.obtener_auto, name='obtener_auto'),
     path('generar-reporte/', views.generar_reporte, name='generar_reporte'),
+    path('api/incidencias/', views.crear_incidencia, name='crear_incidencia'),
 
 
 ]

@@ -25,4 +25,17 @@ class Registros(models.Model):
     movimiento = models.CharField(max_length=30)
     fecha = models.DateTimeField()
 
-    
+class Incidencia(models.Model):
+    TIPOS_INCIDENCIA = [
+        ('actividad_ilicita', 'Actividad ilícita'),
+        ('falta_identificacion', 'Falta de identificación'),
+        ('otro', 'Otro')
+    ]
+
+    nombre_usuario = models.CharField(max_length=100)  # Nombre de quien reporta la incidencia
+    fecha = models.DateTimeField(auto_now_add=True)  # Fecha y hora en que se crea la incidencia
+    tipo = models.CharField(max_length=50, choices=TIPOS_INCIDENCIA)  # Tipo de incidencia
+    motivo = models.TextField()  # Descripción detallada de la incidencia
+
+    def __str__(self):
+        return f"Incidencia de {self.nombre_usuario} - {self.tipo}"   

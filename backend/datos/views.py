@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')  # Establece el backend no interactivo
 from rest_framework import viewsets, permissions
 from .serializers import *
 from .models import Registros
@@ -713,3 +715,12 @@ def generar_reporte(request):
     return Response(reporte_data)
 
 #----------------------------------------------------------REPORTES--------------------------------------------------#
+
+@api_view(['POST'])
+def crear_incidencia(request):
+    if request.method == 'POST':
+        serializer = IncidenciaSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

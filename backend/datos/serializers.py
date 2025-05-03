@@ -76,3 +76,8 @@ class AutoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehiculos
         fields = ['placa', 'modelo', 'color', 'tipo', 'usuario']  # Agrega los campos que quieres enviar
+
+class IncidenciaSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Incidencia
+            fields = ['id', 'nombre_usuario', 'fecha', 'tipo', 'motivo']
