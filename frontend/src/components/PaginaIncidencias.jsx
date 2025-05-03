@@ -19,6 +19,11 @@ const CrearIncidencia = () => {
     AxiosInstance.post('/api/incidencias/', incidenciaData)
       .then(response => {
         alert('Incidencia reportada con éxito');
+
+        // Limpiar los campos del formulario
+        setNombreUsuario('');
+        setTipo('');
+        setMotivo('');
       })
       .catch(error => {
         console.error('Error al reportar incidencia:', error);
