@@ -21,8 +21,8 @@ from django.http import JsonResponse
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
-
-
+import time
+import json
 
 class RegistroViewset(viewsets.ModelViewSet):  
     permission_classes = [permissions.AllowAny]
@@ -280,9 +280,12 @@ def predecir_ocupacion_prophet():
 
 def predecir_dispo():
 
+    print("🔍 Verificando cache.get")
     cached_data = cache.get("prediccion_dispo")
+    print("✅ Resultado de cache.get:", cached_data is not None)
 
     if cached_data:
+        print("✅ Cache usado para predecir_dispo")
         return cached_data
     
     estancias = emparejar_entradas_salidas()
@@ -294,14 +297,15 @@ def predecir_dispo():
 
     # Paso 3: Entrenar el modelo
     modelo = entrenar_modelo_prophet(data)
-    
+
     # Paso 4: Hacer predicciones
     predicciones = hacer_predicciones(modelo, periodos=24)
 
     predicciones_json = predicciones_a_json(predicciones)
+    print(predicciones_json)
 
     cache.set("prediccion_dispo", predicciones_json, timeout = 1800)
-    # Devolver como respuesta JSON
+  
     return predicciones_json
 #-------------------------------------------------Vistas del modelo prophet------------------------------------------------#
 
@@ -448,16 +452,14 @@ def predicciones_a_json(predicciones, max_lugares=333):
 
 class GraficoData(APIView):
     def get(self, request):
-        # Obtener los datos para el primer gráfico
-        datos_prophet = predecir_dispo()
         
-        # Obtener los datos para el segundo gráfico
+        datos_prophet = predecir_dispo()
+
         datos_dispo = predecir_ocupacion_prophet()
 
-        # Obtener los datos para el tercer gráfico
         datos_ocupacion = obtener_datos_grafico()
 
-        # Devuelves todo junto en un solo objeto
+
         return Response({
             'prophet': datos_prophet,
             'dispo': datos_dispo,
