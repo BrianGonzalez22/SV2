@@ -68,10 +68,11 @@ const EstacionamientoChart = () => {
         const usuariosDocentes = rolesData.find((rol) => rol.rol === 'docente_admin')?.count || 0;
         const usuariosMotos = rolesData.find((rol) => rol.rol === 'moto')?.count || 0;
 
-        const disponiblesAlumnos = TOTAL_ALUMNO - usuariosAlumnos;
-        const disponiblesDocentes = TOTAL_DOCADM - usuariosDocentes;
-        const disponiblesMotos = TOTAL_MOTOS - usuariosMotos;
+        const disponiblesAlumnos = Math.max(0, TOTAL_ALUMNO - usuariosAlumnos);
+        const disponiblesDocentes = Math.max(0, TOTAL_DOCADM - usuariosDocentes);
+        const disponiblesMotos = Math.max(0, TOTAL_MOTOS - usuariosMotos);
         const totalDisponibles = disponiblesAlumnos + disponiblesDocentes + disponiblesMotos;
+
 
         setLugaresDisponibles(totalDisponibles);
         setOcupados({ alumno: usuariosAlumnos, docente: usuariosDocentes, motos: usuariosMotos, total: totalDisponibles});
@@ -119,15 +120,15 @@ const EstacionamientoChart = () => {
       <div style={styles.legendContainer}>
         <div style={styles.legendRow}>
           <div style={{ ...styles.legendItem, backgroundColor: colors.alumno }}>
-            Alumnos: {TOTAL_ALUMNO - ocupados.alumno} 
+            Alumnos: {Math.max(0, TOTAL_ALUMNO - ocupados.alumno)} 
           </div>
           <div style={{ ...styles.legendItem, backgroundColor: colors.docente }}>
-            Docentes y Administrativos: {TOTAL_DOCADM - ocupados.docente} 
+            Docentes y Administrativos: {Math.max(0, TOTAL_DOCADM - ocupados.docente)} 
           </div>
         </div>
         <div style={styles.legendRow}>
           <div style={{ ...styles.legendItem, backgroundColor: colors.motos }}>
-            Motocicletas: {TOTAL_MOTOS - ocupados.motos} 
+            Motocicletas: {Math.max(0, TOTAL_MOTOS - ocupados.motos)}
           </div>
           <div style={{ ...styles.legendItem, backgroundColor: colors.disponibles }}>
             Total de lugares: { ocupados.total} 
