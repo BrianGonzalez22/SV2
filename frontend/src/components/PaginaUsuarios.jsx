@@ -1,3 +1,4 @@
+// BusquedaUsuarios.jsx
 import React, { useState } from 'react';
 import AxiosInstance from './axios';
 import {
@@ -9,46 +10,38 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  Typography
+  Typography,
+  Box,
+  Alert,
+  Container,
+  Paper,
+  Stack,
 } from '@mui/material';
-
 
 const BusquedaUsuarios = () => {
   const [nombre, setNombre] = useState('');
   const [matricula, setMatricula] = useState('');
   const [resultados, setResultados] = useState([]);
-  const [mensaje, setMensaje] = useState('');
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [errorBusqueda, setErrorBusqueda] = useState('');
 
   const buscarUsuarios = async () => {
     try {
-      // Si no hay ningún campo lleno, evitar búsqueda
-      if (!nombre.trim() && !matricula.trim()) {
-        setMensaje('Ingresa al menos un campo para buscar.');
-        setResultados([]);
-        return;
-      }
-
-      const res = await AxiosInstance.get('api/buscar-usuarios/', {
-        params: {
-          nombre,
-          matricula
-        }
+      const res = await AxiosInstance.get('buscar-usuarios/', {
+        params: { nombre, matricula },
       });
-
-      console.log('Respuesta del servidor:', res.data);
-
-      if (res.data.length === 0) {
-        setMensaje('No se encontró ningún usuario con esos datos.');
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        setResultados(res.data);
+        setErrorBusqueda('');
       } else {
-        setMensaje(''); // Limpiar mensaje si hay resultados
+        setResultados([]);
+        setErrorBusqueda('No se encontraron usuarios.');
       }
-
-      setResultados(res.data);
-
     } catch (error) {
       console.error('Error en la búsqueda:', error);
-      setMensaje('Ocurrió un error al realizar la búsqueda.');
       setResultados([]);
+      setErrorBusqueda('Error al buscar usuarios.');
     }
   };
 
@@ -57,37 +50,76 @@ const BusquedaUsuarios = () => {
     buscarUsuarios();
   };
 
+  const obtenerDetallesUsuario = async (id) => {
+    try {
+      const res = await AxiosInstance.get(`usuario/${id}/`);
+      setUsuarioSeleccionado(res.data);
+      setOpenDialog(true);
+    } catch (error) {
+      console.error('Error al obtener detalles del usuario:', error);
+    }
+  };
+
   return (
-    <div>
-      <h2>Búsqueda de Usuarios</h2>
-      <form onSubmit={manejarSubmit}>
-        <input
-          type="text"
-          placeholder="Nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Número de control (opcional)"
-          value={matricula}
-          onChange={(e) => setMatricula(e.target.value)}
-        />
-        <button type="submit">Buscar</button>
-      </form>
+    <Container maxWidth="sm" sx={{ mt: 5 }}>
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          Búsqueda de Usuarios
+        </Typography>
+        <Box component="form" onSubmit={manejarSubmit} sx={{ mb: 2 }}>
+          <Stack spacing={2}>
+            <TextField
+              label="Nombre"
+              variant="outlined"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Número de control (opcional)"
+              variant="outlined"
+              value={matricula}
+              onChange={(e) => setMatricula(e.target.value)}
+              fullWidth
+            />
+            <Button type="submit" variant="contained" color="primary">
+              Buscar
+            </Button>
+          </Stack>
+        </Box>
 
-      {/* Mostrar mensaje si existe */}
-      {mensaje && <div style={{ color: 'red', marginTop: '10px' }}>{mensaje}</div>}
+        {errorBusqueda && <Alert severity="info">{errorBusqueda}</Alert>}
 
-      {/* Lista de resultados */}
-      <ul>
-        {resultados.map((usuario) => (
-          <li key={usuario.id}>
-            {usuario.nombre} - {usuario.matricula}
-          </li>
-        ))}
-      </ul>
-    </div>
+        <List>
+          {resultados.map((usuario) => (
+            <ListItem
+              button
+              key={usuario.id}
+              onClick={() => obtenerDetallesUsuario(usuario.id)}
+            >
+              <ListItemText
+                primary={usuario.nombre}
+                secondary={`Matrícula: ${usuario.matricula}`}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Paper>
+
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Detalles del Usuario</DialogTitle>
+        <DialogContent>
+          {usuarioSeleccionado && (
+            <Stack spacing={1}>
+              <Typography><strong>Nombre:</strong> {usuarioSeleccionado.nombre}</Typography>
+              <Typography><strong>Correo:</strong> {usuarioSeleccionado.correo}</Typography>
+              <Typography><strong>Teléfono:</strong> {usuarioSeleccionado.telefono}</Typography>
+              <Typography><strong>Rol:</strong> {usuarioSeleccionado.rol}</Typography>
+            </Stack>
+          )}
+        </DialogContent>
+      </Dialog>
+    </Container>
   );
 };
 

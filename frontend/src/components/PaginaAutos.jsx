@@ -1,74 +1,97 @@
 import React, { useState } from "react";
-import AxiosInstance from "./axios";  // Tu instancia de Axios para las peticiones HTTP
+import AxiosInstance from "./axios";
+import {
+  Container, TextField, Button, Typography, Paper, Box, Dialog, DialogTitle,
+  DialogContent, DialogContentText, DialogActions
+} from "@mui/material";
 
 const PaginaAutos = () => {
-    const [matricula, setMatricula] = useState("");  // Para almacenar el valor del input
-    const [auto, setAuto] = useState(null);  // Para almacenar la información del auto
-    const [error, setError] = useState("");  // Para manejar los mensajes de error
+  const [matricula, setMatricula] = useState("");
+  const [auto, setAuto] = useState(null);
+  const [error, setError] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-    // Manejar el cambio en el input de la matrícula
-    const handleInputChange = (event) => {
-        setMatricula(event.target.value);
-    };
+  const handleInputChange = (event) => {
+    setMatricula(event.target.value);
+  };
 
-    // Manejar la búsqueda de autos
-    const handleBuscar = async () => {
-        if (!matricula) {
-            setError("Por favor, ingresa una matrícula.");
-            return;
-        }
-        
-        try {
-            // Hacemos la consulta con la matrícula proporcionada
-            const response = await AxiosInstance.get(`/autos/${matricula}`);
-            
-            // Si el auto existe, lo mostramos
-            if (response.data) {
-                setAuto(response.data);
-                setError("");  // Limpiar error si se encuentra el auto
-            } else {
-                setAuto(null);
-                setError("No se encontró automovil con la matrícula introducida.");
-            }
-        } catch (error) {
-            console.error("Error al buscar el auto:", error);
-            setError("Ocurrió un error al realizar la búsqueda.");
-        }
-    };
+  const handleBuscar = async () => {
+    if (!matricula.trim()) {
+      setError("Por favor, ingresa una matrícula.");
+      return;
+    }
 
-    return (
-        <div>
-            <h1>Busqueda de Vehiculos</h1>
+    try {
+      const response = await AxiosInstance.get(`autos/${matricula.trim()}`);
+      if (response.data) {
+        setAuto(response.data);
+        setError("");
+        setDialogOpen(true);
+      } else {
+        setAuto(null);
+        setError("No se encontró automovil con la matrícula introducida.");
+      }
+    } catch (err) {
+      console.error("Error al buscar el auto:", err);
+      setError("Ocurrió un error al realizar la búsqueda.");
+      setAuto(null);
+    }
+  };
 
-            {/* Formulario de búsqueda */}
-            <div>
-                <input
-                    type="text"
-                    value={matricula}
-                    onChange={handleInputChange}
-                    placeholder="Ingrese la matrícula del auto"
-                />
-                <button onClick={handleBuscar}>Buscar</button>
-            </div>
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
 
-            {/* Mostrar el mensaje de error */}
-            {error && <p style={{ color: "red" }}>{error}</p>}
+  return (
+    <Container maxWidth="sm">
+      <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Búsqueda de Vehículos
+        </Typography>
+        <Box display="flex" gap={2} alignItems="center">
+          <TextField
+            label="Matrícula"
+            variant="outlined"
+            fullWidth
+            value={matricula}
+            onChange={handleInputChange}
+          />
+          <Button variant="contained" color="primary" onClick={handleBuscar}>
+            Buscar
+          </Button>
+        </Box>
 
-            {/* Mostrar los resultados */}
-            {auto && (
-                <div>
-                    <h2>Auto Encontrado:</h2>
-                    <p><strong>Placa:</strong> {auto.placa}</p>
-                    <p><strong>Tipo:</strong> {auto.tipo}</p>
-                    <p><strong>Modelo:</strong> {auto.modelo}</p>
-                    <p><strong>Color:</strong> {auto.color}</p>
-                    <p><strong>Responsable:</strong> {auto.usuario}</p>
+        {error && (
+          <Typography color="error" sx={{ marginTop: 2 }}>
+            {error}
+          </Typography>
+        )}
+      </Paper>
 
-                    {/* Aquí puedes mostrar más columnas del auto si las tienes */}
-                </div>
-            )}
-        </div>
-    );
+      {/* Detalle en diálogo */}
+      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle>Detalles del Vehículo</DialogTitle>
+        <DialogContent>
+          {auto ? (
+            <>
+              <DialogContentText><strong>Placa:</strong> {auto.placa}</DialogContentText>
+              <DialogContentText><strong>Modelo:</strong> {auto.modelo}</DialogContentText>
+              <DialogContentText><strong>Color:</strong> {auto.color}</DialogContentText>
+              <DialogContentText><strong>Tipo:</strong> {auto.tipo}</DialogContentText>
+              <DialogContentText><strong>Responsable:</strong> {auto.usuario}</DialogContentText>
+            </>
+          ) : (
+            <DialogContentText>No hay información del vehículo.</DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
+  );
 };
 
 export default PaginaAutos;

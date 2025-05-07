@@ -16,7 +16,7 @@ const CrearIncidencia = () => {
     };
 
     // Enviar los datos a la API de Django
-    AxiosInstance.post('/api/incidencias/', incidenciaData)
+    AxiosInstance.post('incidencias/', incidenciaData)
       .then(response => {
         alert('Incidencia reportada con éxito');
 

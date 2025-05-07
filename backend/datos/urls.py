@@ -21,9 +21,11 @@ urlpatterns = [
     path('obtener-fechas-registros/', obtener_fechas_registros, name='obtener_fechas'),
     path('obtener-fechas-filtradas/', obtener_registros_filtrados, name='obtener_fechas_filtradas'),
     path('api/buscar-usuarios/', buscar_usuarios),
-    path('autos/<str:matricula>/', views.obtener_auto, name='obtener_auto'),
+    path('autos/<str:placa>/', views.detalle_auto, name='obtener_auto'),
     path('generar-reporte/', views.generar_reporte, name='generar_reporte'),
-    path('api/incidencias/', views.crear_incidencia, name='crear_incidencia'),
+    path('incidencias/', views.crear_incidencia, name='crear_incidencia'),
+    path('buscar-usuarios/', views.buscar_usuarios),
+    path('usuario/<int:usuario_id>/', views.obtener_usuario_detalle),
 
 
 ]

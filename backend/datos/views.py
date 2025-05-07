@@ -545,14 +545,29 @@ def buscar_usuarios(request):
 
     return JsonResponse(data, safe=False)
 
-@api_view(['GET'])
-def obtener_auto(request, matricula):
+# @api_view(['GET'])
+# def obtener_auto(request, matricula):
+#     try:
+#         auto = Vehiculos.objects.get(placa=matricula)  # Busca el auto por matrícula
+#         serializer = AutoSerializer(auto)  # Serializa los datos
+#         return Response(serializer.data)
+#     except Vehiculos.DoesNotExist:
+#         return Response({"error": "Auto no encontrado"}, status=404)
+    
+def detalle_auto(request, placa):
     try:
-        auto = Vehiculos.objects.get(placa=matricula)  # Busca el auto por matrícula
-        serializer = AutoSerializer(auto)  # Serializa los datos
-        return Response(serializer.data)
+        auto = Vehiculos.objects.select_related('usuario').get(placa=placa)
     except Vehiculos.DoesNotExist:
-        return Response({"error": "Auto no encontrado"}, status=404)
+        return JsonResponse({'error': 'Auto no encontrado'}, status=404)
+
+    data = {
+        "placa": auto.placa,
+        "modelo": auto.modelo,
+        "color": auto.color,
+        "tipo": auto.tipo,
+        "usuario": auto.usuario.nombre if auto.usuario else None,  # 👈 accedes al campo nombre directamente
+    }
+    return JsonResponse(data)
     
 #----------------------------------------------------------REPORTES--------------------------------------------------#
 def obtener_estancias_en_rango(fecha_inicio, fecha_fin):
@@ -729,3 +744,19 @@ def crear_incidencia(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def obtener_usuario_detalle(request, usuario_id):
+    try:
+        usuario = Usuarios.objects.get(id=usuario_id)
+        data = {
+            'nombre': usuario.nombre,
+            'correo': usuario.correo,
+            'telefono': usuario.telefono,
+            'rol': usuario.rol,
+        }
+        return JsonResponse(data)
+    except Usuarios.DoesNotExist:
+        return JsonResponse({'error': 'Usuario no encontrado'}, status=404) 
+    
+
+
