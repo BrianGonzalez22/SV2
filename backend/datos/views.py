@@ -4,7 +4,7 @@ from rest_framework import viewsets, permissions
 from .serializers import *
 from .models import Registros
 from rest_framework.response import Response
-from django.db.models import Count, When, Case, Value, CharField, F, Avg
+from django.db.models import Count, When, Case, Value, CharField, F, Q
 from .models import *
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
@@ -302,7 +302,6 @@ def predecir_dispo():
     predicciones = hacer_predicciones(modelo, periodos=24)
 
     predicciones_json = predicciones_a_json(predicciones)
-    print(predicciones_json)
 
     cache.set("prediccion_dispo", predicciones_json, timeout = 1800)
   
@@ -522,13 +521,17 @@ def buscar_usuarios(request):
     nombre = request.GET.get('nombre', '').strip()
     matricula = request.GET.get('matricula', '').strip()
 
-    if not nombre:
-        return JsonResponse({'error': 'Nombre es requerido.'}, status=400)
+    if not nombre and not matricula:
+        return JsonResponse({'error': 'Debe proporcionar al menos nombre o matrícula.'}, status=400)
 
-    usuarios = Usuarios.objects.filter(nombre__icontains=nombre)
-
+    # Construir la consulta con filtros OR
+    filtros = Q()
+    if nombre:
+        filtros |= Q(nombre__icontains=nombre)
     if matricula:
-        usuarios = usuarios.filter(matricula__iexact=matricula)
+        filtros |= Q(matricula__iexact=matricula)
+
+    usuarios = Usuarios.objects.filter(filtros)
 
     data = [
         {
@@ -540,7 +543,7 @@ def buscar_usuarios(request):
         for u in usuarios
     ]
 
-    return JsonResponse(data, safe=False)  # data debe ser una lista
+    return JsonResponse(data, safe=False)
 
 @api_view(['GET'])
 def obtener_auto(request, matricula):
