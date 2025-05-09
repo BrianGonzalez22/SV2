@@ -280,12 +280,11 @@ def predecir_ocupacion_prophet():
 
 def predecir_dispo():
 
-    print("🔍 Verificando cache.get")
+    # print("🔍 Verificando cache.get")
     cached_data = cache.get("prediccion_dispo")
-    print("✅ Resultado de cache.get:", cached_data is not None)
+    # print("✅ Resultado de cache.get:", cached_data is not None)
 
     if cached_data:
-        print("✅ Cache usado para predecir_dispo")
         return cached_data
     
     estancias = emparejar_entradas_salidas()
