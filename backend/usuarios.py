@@ -11,7 +11,7 @@ django.setup()
 from datos.models import Usuarios  # reemplaza 'tu_app' con el nombre de tu aplicación
 
 # Opciones válidas para el campo rol
-roles = ['moto', 'administrativo', 'docente']
+roles = ['moto', 'administrativo', 'docente', 'alumno']
 
 # Funciones auxiliares
 def generar_nombre():
