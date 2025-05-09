@@ -37,5 +37,5 @@ else:
             estado=random.choice([0, 1])
         )
 
-    print(f"🚗 Se generó 1 vehículo para cada uno de los {len(usuarios)} usuarios.")
+    print(f"Se agregaron autos correctamente")
 
