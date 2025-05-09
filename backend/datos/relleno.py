@@ -9,7 +9,7 @@ def generar_hora_aleatoria(hora_inicio, hora_fin):
     fin = datetime.combine(datetime.today(), hora_fin)
     delta = fin - inicio
     return inicio + timedelta(seconds=random.randint(0, int(delta.total_seconds())))
-
+# modificar fecha para insertar registros
 def insertar_registros(fecha_inicio='2023-01-01'):
     # Convertir la fecha de inicio y definir la fecha actual
     fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
