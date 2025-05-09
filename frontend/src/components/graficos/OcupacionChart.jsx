@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import AxiosInstance from '../axios'; // Ajusta la ruta de AxiosInstance
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
-const COLORS = ['#00C49F','#FFBB28','#0088FE'];
+const colors = {
+  alumno: '#00C49F',
+  docente_admin: '#FFBB28',
+  moto: '#0088FE',
+};
 
 const PieChartComponent = () => {
   const [data, setData] = useState([]);
@@ -54,7 +58,7 @@ const PieChartComponent = () => {
             label={({ name,  }) => `${name}`} // Mostrar porcentaje en el gráfico
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell key={`cell-${index}`} fill={colors[entry.name] || '#cccccc'} />
             ))}
           </Pie>
         </PieChart>
@@ -72,7 +76,7 @@ const PieChartComponent = () => {
                 style={{
                   width: '20px',
                   height: '20px',
-                  backgroundColor: COLORS[index % COLORS.length],
+                  backgroundColor: colors[entry.name] || '#cccccc',
                   marginRight: '5px',
                 }}
               />
