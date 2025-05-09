@@ -25,6 +25,7 @@ class Registros(models.Model):
     movimiento = models.CharField(max_length=30)
     fecha = models.DateTimeField()
 
+
 class Incidencia(models.Model):
     TIPOS_INCIDENCIA = [
         ('actividad_ilicita', 'Actividad ilícita'),
@@ -39,3 +40,8 @@ class Incidencia(models.Model):
 
     def __str__(self):
         return f"Incidencia de {self.nombre_usuario} - {self.tipo}"   
+
+# PRUEBA CON DJANGO WEBSOCKETS
+class Mensaje(models.Model):
+    texto = models.CharField(max_length=255)
+    creado = models.DateTimeField(auto_now_add=True)
