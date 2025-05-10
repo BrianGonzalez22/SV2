@@ -27,10 +27,10 @@ export default function Navbar({ onLogout }) {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, backgroundColor: '#32129a' }}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Tablero
+            Tablero de Gestion Estacionamiento TSJ 
           </Typography>
           <Button color="inherit" onClick={onLogout}>Cerrar Sesión</Button>
         </Toolbar>
