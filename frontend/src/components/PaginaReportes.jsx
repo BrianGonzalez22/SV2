@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AxiosInstance from './axios';
 import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const PaginaReportes = () => {
   const [inicio, setInicio] = useState('');
@@ -20,41 +21,27 @@ const PaginaReportes = () => {
       });
   };
 
-  // Función para generar el PDF
-  const generarPDF = () => {
-    const doc = new jsPDF();
-    
-    // Agregar el contenido del reporte
-    doc.text('Reporte de Ocupación', 10, 10);
-    
-    // Fecha de inicio y fin
-    doc.text(`Fecha de inicio: ${new Date(reporte.fecha_inicio).toLocaleString()}`, 10, 20);
-    doc.text(`Fecha de fin: ${new Date(reporte.fecha_fin).toLocaleString()}`, 10, 30);
-
-    // Ocupación promedio
-    doc.text(`Ocupación Promedio: ${reporte.ocupacion_promedio?.toFixed(2)}%`, 10, 40);
-
-    // Tiempo promedio de permanencia
-    doc.text(`Tiempo Promedio de Permanencia: ${reporte.tiempo_promedio}`, 10, 50);
-
-    // Distribución por rol
-    let yPosition = 60;
-    doc.text('Distribución por Rol:', 10, yPosition);
-    yPosition += 10;
-
-    reporte.roles.forEach((rol, index) => {
-      doc.text(`${rol.rol}: ${rol.cantidad}`, 10, yPosition);
-      yPosition += 10;
-    });
-
-    // Agregar gráfico (base64)
-    const img = `data:image/png;base64,${reporte.grafico}`;
-    doc.addImage(img, 'PNG', 10, yPosition, 180, 100); // Puedes ajustar las coordenadas y el tamaño
-
-    // Guardar el PDF
-    doc.save('reporte.pdf');
+  const generarPDF = async () => {
+    const input = document.getElementById('reporte-pdf');
+    const canvas = await html2canvas(input);
+    const imgData = canvas.toDataURL('image/png');
+  
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('reporte.pdf');
   };
 
+  const getLocalDateTime = () => {
+    const now = new Date();
+    now.setSeconds(0, 0); // limpia segundos y milisegundos
+    const offset = now.getTimezoneOffset();
+    const localTime = new Date(now.getTime() - offset * 60000);
+    return localTime.toISOString().slice(0, 16);
+  };
+  
   return (
     <div>
       <h2>Generar Reporte</h2>
@@ -63,43 +50,34 @@ const PaginaReportes = () => {
       <input
         type="datetime-local"
         value={inicio}
+        max={getLocalDateTime()}
         onChange={(e) => setInicio(e.target.value)}
       />
+
 
       <label>Fecha de fin:</label>
       <input
         type="datetime-local"
         value={fin}
+        max={getLocalDateTime()}
         onChange={(e) => setFin(e.target.value)}
       />
+
 
       <button onClick={obtenerReporte}>Generar Reporte</button>
 
       {reporte && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Ocupación Promedio: {reporte.ocupacion_promedio?.toFixed(2)}%</h3>
-          <h3>Tiempo Promedio de Permanencia: {reporte.tiempo_promedio}</h3>
-          <p>Desde: {new Date(reporte.fecha_inicio).toLocaleString()}</p>
-          <p>Hasta: {new Date(reporte.fecha_fin).toLocaleString()}</p>
+        <>
+          {/* Renderizas la plantilla oculta */}
+          <ReportePlantilla reporte={reporte} style={{ display: 'none' }} />
 
-          <h4>Distribución por Rol:</h4>
-          <ul>
-            {reporte.roles.map((rol, index) => (
-              <li key={index}>{rol.rol}: {rol.cantidad}</li>
-            ))}
-          </ul>
-
-          <img
-            src={`data:image/png;base64,${reporte.grafico}`}
-            alt="Gráfico de distribución por rol"
-            style={{ maxWidth: '100%', height: 'auto', marginTop: '20px' }}
-          />
-
+          {/* Botón para generar el PDF */}
           <button onClick={generarPDF} style={{ marginTop: '20px' }}>
             Descargar PDF
           </button>
-        </div>
+        </>
       )}
+
     </div>
   );
 };
