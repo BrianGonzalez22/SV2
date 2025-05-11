@@ -4,10 +4,10 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, CartesianGrid, ResponsiveCo
 const HeatmapChart = ({ data }) => {
   // Función para asignar colores basada en la predicción
   const getColor = (value) => {
-    if (value < 5) return "#b9fbc0";
-    if (value < 10) return "#98f5e1";
-    if (value > 17) return "#57cc99";
-    if (value < 16) return "#38a3a5";
+    if (value < 5) return "#32129a";
+    if (value < 10) return "#a569bd";
+    if (value >= 15) return "#5b2c6f";
+    if (value < 15) return "#884ea0";
     return "#22577a";
   };
 
