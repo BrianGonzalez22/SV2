@@ -44,7 +44,7 @@ const GraficoOcupacion = ({data}) => {
           <Line
             type="monotone"
             dataKey="ocupacion_esperada"
-            stroke='#00C49F' // Color de la línea
+            stroke='#32129a' // Color de la línea
             activeDot={{ r: 8 }} // Puntos activos en la línea
             strokeWidth={2}
             dot={false} // Si no quieres mostrar los puntos individuales en la línea

@@ -36,7 +36,7 @@ const EstanciaPromedioChart = ({ data }) => {
           <Legend />
           
           {/* Línea principal con estilo */}
-          <Line type="monotone" dataKey="minutos" stroke="#00C49F" strokeWidth={2} />
+          <Line type="monotone" dataKey="minutos" stroke="#32129a" strokeWidth={2} />
         </LineChart>
       ) : (
         <p>Cargando datos...</p>  // Mostrar un mensaje de carga mientras los datos no estén disponibles
