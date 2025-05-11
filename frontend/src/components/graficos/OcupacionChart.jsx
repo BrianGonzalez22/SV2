@@ -3,8 +3,8 @@ import AxiosInstance from '../axios'; // Ajusta la ruta de AxiosInstance
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
 const colors = {
-  alumno: '#00C49F',
-  docente_admin: '#FFBB28',
+  alumno: '#ec5a68',
+  docente_admin: '#32129a',
   moto: '#0088FE',
 };
 
