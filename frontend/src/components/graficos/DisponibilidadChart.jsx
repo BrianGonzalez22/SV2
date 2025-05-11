@@ -15,8 +15,8 @@ const oR = 100;
 
 const colors = {
   disponibles: '#818181',
-  alumno: '#00C49F',
-  docente: '#FFBB28',
+  alumno: '#ec5a68',
+  docente: '#32129a',
   motos: '#0088FE',
 };
 
