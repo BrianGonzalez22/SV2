@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import AxiosInstance from './axios';  // Asumiendo que tienes configurado Axios
+import AxiosInstance from './axios';
+import {
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  MenuItem,
+  Button,
+  Box,
+} from '@mui/material';
 
 const CrearIncidencia = () => {
   const [nombreUsuario, setNombreUsuario] = useState('');
@@ -15,12 +24,9 @@ const CrearIncidencia = () => {
       motivo: motivo,
     };
 
-    // Enviar los datos a la API de Django
     AxiosInstance.post('incidencias/', incidenciaData)
       .then(response => {
         alert('Incidencia reportada con éxito');
-
-        // Limpiar los campos del formulario
         setNombreUsuario('');
         setTipo('');
         setMotivo('');
@@ -32,40 +38,94 @@ const CrearIncidencia = () => {
   };
 
   return (
-    <div>
-      <h2>Reportar Incidencia</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nombre del Usuario:</label>
-          <input
-            type="text"
-            value={nombreUsuario}
-            onChange={(e) => setNombreUsuario(e.target.value)}
-            required
-          />
-        </div>
+    <Box display="flex" justifyContent="center" mt={5}>
+      <Card sx={{ width: 400, padding: 2 }}>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            Reportar Incidencia
+          </Typography>
 
-        <div>
-          <label>Tipo de Incidencia:</label>
-          <select value={tipo} onChange={(e) => setTipo(e.target.value)} required>
-            <option value="actividad_ilicita">Actividad Ilícita</option>
-            <option value="falta_identificacion">Falta de Identificación</option>
-            <option value="otro">Otro</option>
-          </select>
-        </div>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Nombre del Usuario"
+              value={nombreUsuario}
+              onChange={(e) => setNombreUsuario(e.target.value)}
+              fullWidth
+              margin="normal"
+              required
+              sx={{
+                '& label.Mui-focused': {
+                  color: '#32129a', // color del label al enfocar
+                },
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#32129a', // color del borde al enfocar
+                  },
+                },
+              }}
+            />
 
-        <div>
-          <label>Motivo:</label>
-          <textarea
-            value={motivo}
-            onChange={(e) => setMotivo(e.target.value)}
-            required
-          />
-        </div>
+            <TextField
+              label="Tipo de Incidencia"
+              select
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value)}
+              fullWidth
+              margin="normal"
+              required
+              sx={{
+                '& label.Mui-focused': {
+                  color: '#32129a', // color del label al enfocar
+                },
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#32129a', // color del borde al enfocar
+                  },
+                },
+              }}
+            >
+              <MenuItem value="actividad_ilicita">Actividad Ilícita</MenuItem>
+              <MenuItem value="falta_identificacion">Falta de Identificación</MenuItem>
+              <MenuItem value="otro">Otro</MenuItem>
+            </TextField>
 
-        <button type="submit">Reportar Incidencia</button>
-      </form>
-    </div>
+            <TextField
+              label="Motivo"
+              value={motivo}
+              onChange={(e) => setMotivo(e.target.value)}
+              fullWidth
+              margin="normal"
+              multiline
+              rows={4}
+              required
+              sx={{
+                '& label.Mui-focused': {
+                  color: '#32129a', // color del label al enfocar
+                },
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#32129a', // color del borde al enfocar
+                  },
+                },
+              }}
+            />
+
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{ mt: 2 ,
+                    backgroundColor: '#32129a', // tu color personalizado
+                    '&:hover': {
+                    backgroundColor: '#5d3397', // color al hacer hover
+              },}}
+            >
+              Reportar Incidencia
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 
