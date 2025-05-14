@@ -74,6 +74,16 @@ const BusquedaUsuarios = () => {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               fullWidth
+              sx={{
+                '& label.Mui-focused': {
+                  color: '#32129a', // color del label al enfocar
+                },
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#32129a', // color del borde al enfocar
+                  },
+                },
+              }}
             />
             <TextField
               label="Número de control (opcional)"
@@ -81,8 +91,23 @@ const BusquedaUsuarios = () => {
               value={matricula}
               onChange={(e) => setMatricula(e.target.value)}
               fullWidth
+              sx={{
+                '& label.Mui-focused': {
+                  color: '#32129a', // color del label al enfocar
+                },
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#32129a', // color del borde al enfocar
+                  },
+                },
+              }}
             />
-            <Button type="submit" variant="contained" color="primary">
+            <Button type="submit" variant="contained" sx={{
+              backgroundColor: '#32129a', // tu color personalizado
+              '&:hover': {
+                backgroundColor: '#5d3397', // color al hacer hover
+              },
+            }}>
               Buscar
             </Button>
           </Stack>
