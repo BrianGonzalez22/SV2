@@ -102,7 +102,16 @@ const PaginaRegistros = () => {
 
       <Grid container spacing={2} style={{ marginTop: '1rem' }}>
         <Grid item xs={4}>
-          <FormControl fullWidth>
+          <FormControl fullWidth sx={{
+                '& label.Mui-focused': {
+                  color: '#32129a', // color del label al enfocar
+                },
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#32129a', // color del borde al enfocar
+                  },
+                },
+              }}>
             <InputLabel id="anio-label">Año</InputLabel>
             <Select
               labelId="anio-label"
@@ -120,7 +129,16 @@ const PaginaRegistros = () => {
         </Grid>
 
         <Grid item xs={4}>
-          <FormControl fullWidth>
+          <FormControl fullWidth sx={{
+                '& label.Mui-focused': {
+                  color: '#32129a', // color del label al enfocar
+                },
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#32129a', // color del borde al enfocar
+                  },
+                },
+              }}>
             <InputLabel id="mes-label">Mes</InputLabel>
             <Select
               labelId="mes-label"
@@ -138,7 +156,16 @@ const PaginaRegistros = () => {
         </Grid>
 
         <Grid item xs={4}>
-          <FormControl fullWidth>
+          <FormControl fullWidth sx={{
+                '& label.Mui-focused': {
+                  color: '#32129a', // color del label al enfocar
+                },
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#32129a', // color del borde al enfocar
+                  },
+                },
+              }}>
             <InputLabel id="dia-label">Día</InputLabel>
             <Select
               labelId="dia-label"
