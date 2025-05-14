@@ -55,8 +55,23 @@ const PaginaAutos = () => {
             fullWidth
             value={matricula}
             onChange={handleInputChange}
+            sx={{
+                '& label.Mui-focused': {
+                  color: '#32129a', // color del label al enfocar
+                },
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#5d3397', // color del borde al enfocar
+                  },
+                },
+              }}
           />
-          <Button variant="contained" color="primary" onClick={handleBuscar}>
+          <Button variant="contained" sx={{
+              backgroundColor: '#32129a', // tu color personalizado
+              '&:hover': {
+                backgroundColor: '#5d3397', // color al hacer hover
+              },
+            }} onClick={handleBuscar}>
             Buscar
           </Button>
         </Box>
