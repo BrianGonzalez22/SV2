@@ -1,7 +1,6 @@
 from django.db import models
-from django.utils import timezone
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
+from django.contrib.auth.models import AbstractUser
+
 
 # Create your models here.
 class Usuarios(models.Model):
@@ -45,3 +44,10 @@ class Incidencia(models.Model):
 class Mensaje(models.Model):
     texto = models.CharField(max_length=255)
     creado = models.DateTimeField(auto_now_add=True)
+
+class CustomUser(AbstractUser):
+    ROLES = (
+        ('administrativo', 'Administrativo'),
+        ('guardia', 'Guardia'),
+    )
+    rol = models.CharField(max_length=20, choices=ROLES)

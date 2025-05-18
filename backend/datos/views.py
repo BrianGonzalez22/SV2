@@ -21,8 +21,8 @@ from django.http import JsonResponse
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
-import time
-import json
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
 
 class RegistroViewset(viewsets.ModelViewSet):  
     permission_classes = [permissions.AllowAny]
@@ -756,6 +756,8 @@ def obtener_usuario_detalle(request, usuario_id):
         return JsonResponse(data)
     except Usuarios.DoesNotExist:
         return JsonResponse({'error': 'Usuario no encontrado'}, status=404) 
-    
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 

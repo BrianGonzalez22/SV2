@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class RegistrosSerializer(serializers.ModelSerializer):
     usuario = serializers.SlugRelatedField(
@@ -81,3 +82,10 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         class Meta:
             model = Incidencia
             fields = ['id', 'nombre_usuario', 'fecha', 'tipo', 'motivo']
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['role'] = user.rol  # Incluye el rol en el token
+        return token
