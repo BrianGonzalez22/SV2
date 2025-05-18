@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';  // Importa useNavigate
+import { jwtDecode } from 'jwt-decode'; // ✅ Esto es lo correcto
 
 const Login = ({ setIsAuthenticated }) => {
     const [username, setUsername] = useState('');
@@ -14,18 +15,30 @@ const Login = ({ setIsAuthenticated }) => {
           username,
           password
         });
-  
-        // Guarda los tokens en localStorage
-        localStorage.setItem('access', response.data.access);
-        localStorage.setItem('refresh', response.data.refresh);
-  
-        setIsAuthenticated(true); // Actualiza el estado
+
+        const access = response.data.access;
+        const refresh = response.data.refresh;
+
+        // Decodifica el token para extraer el rol
+        const decoded = jwtDecode(access);
+        const role = decoded.role;
+
+        console.log("Token decodificado:", decoded);
+        console.log("Respuesta del backend:", response.data);
+
+        // Guarda en localStorage
+        localStorage.setItem('access', access);
+        localStorage.setItem('refresh', refresh);
+        localStorage.setItem('role', role);
+
+        setIsAuthenticated(true);
         alert('Login exitoso');
-        navigate('/'); // Redirige al dashboard
+        navigate('/');
       } catch (error) {
         alert('Error en el login. Verifique sus credenciales.');
       }
     };
+
   
     return (
       <form onSubmit={handleLogin}>

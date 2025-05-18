@@ -10,22 +10,27 @@ import PaginaReportes from './components/PaginaReportes'
 import Navbar from './components/Navbar'
 import Login from './components/Login';
 import Register from './components/register'
-
+import PrivateRoute from './components/RutaPrivada';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [role, setRole] = useState(null); // <-- añadido
   const navigate = useNavigate();
 
-  // Verificar token en el inicio
   useEffect(() => {
     const token = localStorage.getItem('access');
+    const userRole = localStorage.getItem('role');
     setIsAuthenticated(!!token);
+    if (userRole) {
+      setRole(userRole);
+    }
   }, []);
 
   // Función para logout
   const handleLogout = () => {
     localStorage.removeItem('access');
     localStorage.removeItem('refresh');
+    localStorage.removeItem('role'); // <-- opcional pero recomendable
     setIsAuthenticated(false);
     navigate('/login');
   };
@@ -38,11 +43,11 @@ function App() {
           <div style={{ flexGrow: 1, padding: '70px' }}>
             <Routes>
               <Route path="/" element={<PaginaGraficos />} />
-              <Route path="/PaginaRegistros" element={<PaginaRegistros />} />
-              <Route path="/PaginaUsuarios" element={<PaginaUsuarios />} />
-              <Route path="/PaginaAutos" element={<PaginaAutos />} />
-              <Route path="/PaginaIncidencias" element={<PaginaIncidencias />} />
-              <Route path="/PaginaReportes" element={<PaginaReportes />} />
+              <Route path="/PaginaRegistros" element={<PrivateRoute allowedRoles={['guardia']}> <PaginaRegistros/> </PrivateRoute>} />
+              <Route path="/PaginaUsuarios" element={<PrivateRoute allowedRoles={['guardia']}> <PaginaUsuarios/> </PrivateRoute>} />
+              <Route path="/PaginaAutos" element={<PrivateRoute allowedRoles={['guardia']}> <PaginaAutos /> </PrivateRoute>} />
+              <Route path="/PaginaIncidencias" element={<PrivateRoute allowedRoles={['guardia']}> <PaginaIncidencias/> </PrivateRoute>} />
+              <Route path="/PaginaReportes" element={<PrivateRoute allowedRoles={['administrativo']}> <PaginaReportes/> </PrivateRoute>} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>
@@ -51,7 +56,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/*" element={<Navigate to="/login" />} />
+          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       )}
     </>

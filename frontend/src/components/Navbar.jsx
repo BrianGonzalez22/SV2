@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect }from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -11,7 +11,6 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import EqualizerIcon from '@mui/icons-material/Equalizer';
 import StackedBarChartIcon from '@mui/icons-material/StackedBarChart';
 import HistoryIcon from '@mui/icons-material/History';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
@@ -23,6 +22,16 @@ const drawerWidth = 240;
 
 export default function Navbar({ onLogout }) {
   const location = useLocation();
+  const [role, setRole] = useState('');
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem('role');
+    console.log('Role desde localStorage:', storedRole);
+    if (storedRole) {
+      setRole(storedRole);
+    }
+
+  }, []);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -51,6 +60,9 @@ export default function Navbar({ onLogout }) {
               <ListItemText primary="Estacionamiento" />
             </ListItemButton>
           </ListItem>
+
+          {role === 'guardia' && (
+            <>
           <ListItem key="2" disablePadding>
             <ListItemButton component={Link} to="/PaginaRegistros" selected={"/PaginaRegistros" === location.pathname}>
               <ListItemIcon><HistoryIcon /></ListItemIcon>
@@ -75,12 +87,17 @@ export default function Navbar({ onLogout }) {
               <ListItemText primary="Incidencias" />
             </ListItemButton>
           </ListItem>
+            </>
+           )}
+
+           {role === 'administrativo' && (
           <ListItem key="6" disablePadding>
             <ListItemButton component={Link} to="/PaginaReportes" selected={"/PaginaReportes" === location.pathname}>
               <ListItemIcon><ArticleIcon /></ListItemIcon>
               <ListItemText primary="Reportes" />
             </ListItemButton>
           </ListItem>
+           )}
         </Box>
       </Drawer>
     </Box>
